@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tugas2_mobile/pages/penjumlahan_pengurangan_page.dart';
 
 // ============================================================
 // HALAMAN ARITMATIK - PLACEHOLDER
@@ -45,14 +46,10 @@ class AritmatikPage extends StatelessWidget {
               subtitle: 'Operasi penjumlahan dan pengurangan angka',
               color: Colors.green,
               onTap: () {
-                // TODO: Galih - Navigasi ke halaman penjumlahan & pengurangan
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const _PlaceholderPage(
-                      title: 'Penjumlahan & Pengurangan',
-                      assignedTo: 'Galih',
-                    ),
+                    builder: (_) => const PenjumlahanPenguranganPage(),
                   ),
                 );
               },
