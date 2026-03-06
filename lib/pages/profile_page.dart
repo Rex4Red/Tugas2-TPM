@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'data_kelompok_page.dart';
 import 'login_page.dart';
 
 class ProfilePage extends StatefulWidget {
@@ -123,20 +122,6 @@ class _ProfilePageState extends State<ProfilePage> {
             const SizedBox(height: 40),
 
             // Menu Items
-            _buildMenuTile(
-              icon: Icons.group_rounded,
-              title: 'Data Kelompok',
-              subtitle: 'Lihat semua anggota kelompok',
-              onTap: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                      builder: (_) => const DataKelompokPage()),
-                );
-              },
-            ),
-            const SizedBox(height: 12),
-
             _buildMenuTile(
               icon: Icons.logout_rounded,
               title: 'Logout',

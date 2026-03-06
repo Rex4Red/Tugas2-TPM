@@ -15,6 +15,14 @@ class _DataKelompokPageState extends State<DataKelompokPage> {
   bool _isLoading = true;
   String? _error;
 
+  // Warna berbeda untuk setiap anggota
+  final List<Color> _avatarColors = [
+    Colors.teal,
+    Colors.indigo,
+    Colors.orange,
+    Colors.purple,
+  ];
+
   @override
   void initState() {
     super.initState();
@@ -40,105 +48,277 @@ class _DataKelompokPageState extends State<DataKelompokPage> {
     }
   }
 
+  String _getInitials(String name) {
+    final parts = name.split(' ');
+    if (parts.length >= 2) {
+      return '${parts[0][0]}${parts[1][0]}';
+    }
+    return parts[0][0];
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: const Text('Data Kelompok'),
-        backgroundColor: Colors.blueGrey[700],
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
       body: _isLoading
           ? const Center(child: CircularProgressIndicator())
           : _error != null
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.error_outline,
-                          size: 48, color: Colors.red[300]),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Gagal memuat data',
-                        style: TextStyle(
-                            fontSize: 16, color: Colors.grey[600]),
-                      ),
-                      const SizedBox(height: 8),
-                      ElevatedButton(
-                        onPressed: () {
-                          setState(() {
-                            _isLoading = true;
-                            _error = null;
-                          });
-                          _loadData();
-                        },
-                        child: const Text('Coba Lagi'),
-                      ),
-                    ],
-                  ),
-                )
-              : ListView.builder(
-                  padding: const EdgeInsets.all(24),
-                  itemCount: _dataKelompok.length,
-                  itemBuilder: (context, index) {
-                    final member = _dataKelompok[index];
-                    return Container(
-                      margin: const EdgeInsets.only(bottom: 12),
-                      padding: const EdgeInsets.all(16),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(16),
-                        boxShadow: [
-                          BoxShadow(
-                            color: Colors.black.withValues(alpha: 0.04),
-                            blurRadius: 8,
-                            offset: const Offset(0, 2),
+              ? _buildErrorState()
+              : CustomScrollView(
+                  slivers: [
+                    // Header
+                    SliverAppBar(
+                      expandedHeight: 160,
+                      pinned: true,
+                      backgroundColor: Colors.blueGrey[700],
+                      foregroundColor: Colors.white,
+                      flexibleSpace: FlexibleSpaceBar(
+                        title: const Text(
+                          'Data Kelompok',
+                          style: TextStyle(
+                            fontWeight: FontWeight.w600,
+                            fontSize: 18,
                           ),
-                        ],
-                      ),
-                      child: Row(
-                        children: [
-                          CircleAvatar(
-                            backgroundColor: Colors.blueGrey[100],
-                            child: Text(
-                              '${index + 1}',
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: Colors.blueGrey[700],
-                              ),
-                            ),
-                          ),
-                          const SizedBox(width: 16),
-                          Expanded(
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                Text(
-                                  member.namaLengkap,
-                                  style: TextStyle(
-                                    fontSize: 15,
-                                    fontWeight: FontWeight.w600,
-                                    color: Colors.blueGrey[800],
-                                  ),
-                                ),
-                                const SizedBox(height: 4),
-                                Text(
-                                  member.nim,
-                                  style: TextStyle(
-                                    fontSize: 13,
-                                    color: Colors.grey[500],
-                                  ),
-                                ),
+                        ),
+                        background: Container(
+                          decoration: BoxDecoration(
+                            gradient: LinearGradient(
+                              begin: Alignment.topLeft,
+                              end: Alignment.bottomRight,
+                              colors: [
+                                Colors.blueGrey[800]!,
+                                Colors.blueGrey[600]!,
                               ],
                             ),
                           ),
-                        ],
+                          child: Center(
+                            child: Padding(
+                              padding: const EdgeInsets.only(bottom: 24),
+                              child: Icon(
+                                Icons.groups_rounded,
+                                size: 56,
+                                color: Colors.white.withValues(alpha: 0.3),
+                              ),
+                            ),
+                          ),
+                        ),
                       ),
-                    );
-                  },
+                    ),
+
+                    // Info jumlah anggota
+                    SliverToBoxAdapter(
+                      child: Padding(
+                        padding: const EdgeInsets.fromLTRB(24, 24, 24, 8),
+                        child: Row(
+                          children: [
+                            Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 6,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.blueGrey.withValues(alpha: 0.1),
+                                borderRadius: BorderRadius.circular(20),
+                              ),
+                              child: Text(
+                                '${_dataKelompok.length} Anggota',
+                                style: TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w600,
+                                  color: Colors.blueGrey[700],
+                                ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+
+                    // List anggota
+                    SliverPadding(
+                      padding: const EdgeInsets.fromLTRB(24, 8, 24, 24),
+                      sliver: SliverList(
+                        delegate: SliverChildBuilderDelegate(
+                          (context, index) {
+                            final member = _dataKelompok[index];
+                            final color =
+                                _avatarColors[index % _avatarColors.length];
+
+                            return Container(
+                              margin: const EdgeInsets.only(bottom: 16),
+                              decoration: BoxDecoration(
+                                color: Colors.white,
+                                borderRadius: BorderRadius.circular(16),
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: color.withValues(alpha: 0.1),
+                                    blurRadius: 12,
+                                    offset: const Offset(0, 4),
+                                  ),
+                                ],
+                              ),
+                              child: Padding(
+                                padding: const EdgeInsets.all(16),
+                                child: Row(
+                                  children: [
+                                    // Avatar dengan inisial
+                                    Container(
+                                      width: 52,
+                                      height: 52,
+                                      decoration: BoxDecoration(
+                                        gradient: LinearGradient(
+                                          begin: Alignment.topLeft,
+                                          end: Alignment.bottomRight,
+                                          colors: [
+                                            color,
+                                            color.withValues(alpha: 0.7),
+                                          ],
+                                        ),
+                                        borderRadius:
+                                            BorderRadius.circular(14),
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          _getInitials(member.namaLengkap),
+                                          style: const TextStyle(
+                                            color: Colors.white,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                    const SizedBox(width: 16),
+
+                                    // Info
+                                    Expanded(
+                                      child: Column(
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
+                                        children: [
+                                          Text(
+                                            member.namaLengkap,
+                                            style: TextStyle(
+                                              fontSize: 15,
+                                              fontWeight: FontWeight.w600,
+                                              color: Colors.blueGrey[800],
+                                            ),
+                                          ),
+                                          const SizedBox(height: 6),
+                                          Container(
+                                            padding: const EdgeInsets.symmetric(
+                                              horizontal: 10,
+                                              vertical: 4,
+                                            ),
+                                            decoration: BoxDecoration(
+                                              color: color
+                                                  .withValues(alpha: 0.1),
+                                              borderRadius:
+                                                  BorderRadius.circular(8),
+                                            ),
+                                            child: Text(
+                                              member.nim,
+                                              style: TextStyle(
+                                                fontSize: 12,
+                                                fontWeight: FontWeight.w500,
+                                                color: color,
+                                              ),
+                                            ),
+                                          ),
+                                        ],
+                                      ),
+                                    ),
+
+                                    // Nomor urut
+                                    Container(
+                                      width: 28,
+                                      height: 28,
+                                      decoration: BoxDecoration(
+                                        color: Colors.grey[100],
+                                        shape: BoxShape.circle,
+                                      ),
+                                      child: Center(
+                                        child: Text(
+                                          '${index + 1}',
+                                          style: TextStyle(
+                                            fontSize: 12,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.grey[500],
+                                          ),
+                                        ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            );
+                          },
+                          childCount: _dataKelompok.length,
+                        ),
+                      ),
+                    ),
+                  ],
                 ),
+    );
+  }
+
+  Widget _buildErrorState() {
+    return Center(
+      child: Padding(
+        padding: const EdgeInsets.all(32),
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(24),
+              decoration: BoxDecoration(
+                color: Colors.red.withValues(alpha: 0.1),
+                shape: BoxShape.circle,
+              ),
+              child: Icon(Icons.wifi_off_rounded, size: 48, color: Colors.red[300]),
+            ),
+            const SizedBox(height: 24),
+            Text(
+              'Gagal Memuat Data',
+              style: TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.w600,
+                color: Colors.blueGrey[800],
+              ),
+            ),
+            const SizedBox(height: 8),
+            Text(
+              'Pastikan koneksi internet Anda aktif',
+              style: TextStyle(
+                fontSize: 14,
+                color: Colors.grey[500],
+              ),
+            ),
+            const SizedBox(height: 24),
+            SizedBox(
+              height: 48,
+              child: ElevatedButton.icon(
+                onPressed: () {
+                  setState(() {
+                    _isLoading = true;
+                    _error = null;
+                  });
+                  _loadData();
+                },
+                icon: const Icon(Icons.refresh_rounded),
+                label: const Text('Coba Lagi'),
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blueGrey[700],
+                  foregroundColor: Colors.white,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
     );
   }
 }
