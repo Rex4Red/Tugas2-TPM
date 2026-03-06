@@ -1,0 +1,224 @@
+# Flutter Group Project - Tugas 2 Pemrograman Aplikasi Mobile
+
+Aplikasi Flutter dengan fitur login, stopwatch, luas & volume piramid, dan aritmatik. Menggunakan Supabase (PostgreSQL) untuk autentikasi dan data kelompok. Dikerjakan secara marathon oleh 4 anggota kelompok via GitHub.
+
+## Pembagian Jobdesk
+
+| Anggota | Jobdesk |
+|---------|---------|
+| **User (Thalib)** | Login/Register, Stopwatch, Luas Volume Piramid, Home, Profile, Data Kelompok |
+| **Galih** | Penjumlahan & Pengurangan |
+| **Nopal** | Ganjil/Genap & Bilangan Prima |
+| **Tiok** | Jumlah Total |
+
+---
+
+## Supabase Database Setup
+
+### Tabel `data_kelompok`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | int8 (PK, auto) | Primary key |
+| `nim` | text (unique) | NIM mahasiswa |
+| `nama_lengkap` | text | Nama lengkap |
+
+**Data awal:**
+- 123230161, MOHAMMAD THALIB AGUS SAPUTRA
+- 123230167, NOUVAL DITYA MAHESWARA
+- 123230194, BENEDICTUS ARYANTIO WIDARJATMO
+- 123230198, GALIH RASYID MAULANA
+
+### Tabel `users`
+
+| Column | Type | Description |
+|--------|------|-------------|
+| `id` | int8 (PK, auto) | Primary key |
+| `nim` | text (unique, FK → data_kelompok.nim) | NIM sebagai username |
+| `password` | text | Password (hashed) |
+| `created_at` | timestamptz | Waktu registrasi |
+
+### Row Level Security (RLS)
+- Enable RLS pada kedua tabel
+- Policy `SELECT` pada `data_kelompok`: allow for `anon` dan `authenticated`
+- Policy `SELECT/INSERT` pada `users`: allow for `anon` dan `authenticated`
+
+---
+
+## Proposed Changes
+
+### 1. Flutter Project Initialization
+
+#### [NEW] Flutter project di `e:\Kuliah\Semester 6\Mobile\Tugas 2`
+- Inisialisasi project Flutter baru menggunakan `flutter create`
+- Nama project: `tugas2_mobile`
+
+---
+
+### 2. Dependencies (pubspec.yaml)
+
+#### [MODIFY] [pubspec.yaml](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/pubspec.yaml)
+Tambahkan dependencies:
+- `supabase_flutter: ^2.3.0` — Supabase SDK
+- `crypto: ^3.0.3` — untuk hashing password (SHA-256)
+
+---
+
+### 3. Project Structure
+
+```
+lib/
+├── main.dart                  # App entry, Supabase init, routing
+├── config/
+│   └── supabase_config.dart   # Supabase URL & anon key
+├── models/
+│   ├── user_model.dart        # User model
+│   └── kelompok_model.dart    # Data kelompok model
+├── services/
+│   └── auth_service.dart      # Login, register, logout logic
+├── pages/
+│   ├── login_page.dart        # Halaman login
+│   ├── register_page.dart     # Halaman registrasi
+│   ├── home_page.dart         # Menu utama
+│   ├── stopwatch_page.dart    # Stopwatch
+│   ├── piramid_page.dart      # Luas & Volume Piramid
+│   ├── aritmatik_page.dart    # Placeholder untuk aritmatik (akan dilanjutkan teman)
+│   ├── profile_page.dart      # Profile user + data kelompok + logout
+│   └── data_kelompok_page.dart # Daftar semua anggota kelompok
+```
+
+---
+
+### 4. Core Files
+
+#### [NEW] [main.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/main.dart)
+- Inisialisasi Supabase
+- `MaterialApp` dengan theme minimalist
+- Routing: login → home → fitur-fitur
+- Cek session: jika sudah login → langsung ke home
+
+#### [NEW] [supabase_config.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/config/supabase_config.dart)
+- Konstanta `supabaseUrl` dan `supabaseAnonKey`
+
+> [!IMPORTANT]
+> User perlu membuat project di [Supabase](https://supabase.com), lalu memberikan URL dan Anon Key. User juga perlu membuat tabel `data_kelompok` dan `users` sesuai skema di atas, serta insert data kelompok.
+
+---
+
+### 5. Models
+
+#### [NEW] [user_model.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/models/user_model.dart)
+- Class `UserModel` dengan fields: `id`, `nim`, `password`, `createdAt`
+- Factory `fromJson`
+
+#### [NEW] [kelompok_model.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/models/kelompok_model.dart)
+- Class `KelompokModel` dengan fields: `id`, `nim`, `namaLengkap`
+- Factory `fromJson`
+
+---
+
+### 6. Services
+
+#### [NEW] [auth_service.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/services/auth_service.dart)
+- `register(nim, password)`:
+  1. Cek apakah `nim` ada di tabel `data_kelompok`
+  2. Cek apakah `nim` sudah terdaftar di tabel `users`
+  3. Hash password dengan SHA-256
+  4. Insert ke tabel `users`
+- `login(nim, password)`:
+  1. Cek apakah `nim` ada di tabel `data_kelompok`
+  2. Cek apakah `nim` sudah terdaftar di tabel `users`
+  3. Verifikasi password hash
+  4. Simpan session (SharedPreferences / state lokal)
+- `logout()`: Hapus session
+- `getCurrentUser()`: Ambil data user yang sedang login
+- `getDataKelompok()`: Ambil semua data dari tabel `data_kelompok`
+
+---
+
+### 7. Pages
+
+#### [NEW] [login_page.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/pages/login_page.dart)
+- Form: NIM (username) & Password
+- Tombol Login + link ke Register
+- Validasi: NIM harus terdaftar di `data_kelompok` & sudah punya akun di `users`
+- Error messages yang informatif
+
+#### [NEW] [register_page.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/pages/register_page.dart)
+- Form: NIM & Password & Konfirmasi Password
+- Validasi: NIM harus cocok dengan `data_kelompok`
+- Jika NIM tidak ada di `data_kelompok` → tolak
+- Jika NIM sudah terdaftar di `users` → tolak
+
+#### [NEW] [home_page.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/pages/home_page.dart)
+- Greeting: "Selamat datang, [Nama]"
+- Menu cards/tiles:
+  - 🕐 Stopwatch
+  - 📐 Luas & Volume Piramid
+  - ➕ Aritmatik
+- Bottom navigation / drawer untuk Profile
+
+#### [NEW] [stopwatch_page.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/pages/stopwatch_page.dart)
+- Display waktu (format: HH:MM:SS.ms)
+- Tombol: Start, Stop, Reset
+- Fitur Lap (opsional, bisa ditambahkan)
+- Menggunakan `Stopwatch` class bawaan Dart + `Timer` untuk update UI
+
+#### [NEW] [piramid_page.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/pages/piramid_page.dart)
+- Input: alas (a), tinggi sisi miring (t_miring), tinggi piramid (t)
+- Rumus Luas Permukaan piramid segi empat: `a² + 2 × a × t_miring`
+- Rumus Volume piramid: `⅓ × a² × t`
+- Tampilkan hasil perhitungan
+
+#### [NEW] [aritmatik_page.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/pages/aritmatik_page.dart)
+- Halaman placeholder dengan menu:
+  - Penjumlahan & Pengurangan → `// TODO: Galih`
+  - Ganjil/Genap & Prima → `// TODO: Nopal`
+  - Jumlah Total → `// TODO: Tiok`
+- Setiap menu mengarah ke halaman kosong dengan teks "Coming Soon" + komentar TODO
+
+#### [NEW] [profile_page.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/pages/profile_page.dart)
+- Tampilkan Nama & NIM user yang login
+- Tombol "Data Kelompok" → navigasi ke `data_kelompok_page`
+- Tombol "Logout" → hapus session, kembali ke login
+
+#### [NEW] [data_kelompok_page.dart](file:///e:/Kuliah/Semester%206/Mobile/Tugas%202/lib/pages/data_kelompok_page.dart)
+- List semua anggota kelompok dari database
+- Tampilkan NIM dan Nama Lengkap
+
+---
+
+## Verification Plan
+
+### Manual Verification (oleh User)
+1. **Flutter Build:** Jalankan `flutter run` dan pastikan app berjalan tanpa error
+2. **Register Flow:**
+   - Coba daftar dengan NIM yang ada di data kelompok → **Berhasil**
+   - Coba daftar dengan NIM random → **Ditolak**
+   - Coba daftar dengan NIM yang sudah terdaftar → **Ditolak**
+3. **Login Flow:**
+   - Login dengan akun yang sudah terdaftar → **Berhasil, masuk Home**
+   - Login dengan NIM yang belum daftar → **Error: belum terdaftar, daftar dulu**
+   - Login dengan password salah → **Error: password salah**
+4. **Stopwatch:** Start, Stop, Reset berfungsi dengan benar
+5. **Piramid:** Input nilai → hasil luas & volume sesuai rumus
+6. **Profile:** Nama & NIM tampil sesuai user yang login
+7. **Data Kelompok:** Menampilkan 4 anggota dari database
+8. **Logout:** Kembali ke login page, session dihapus
+
+### Automated (Build Check)
+```bash
+cd "e:\Kuliah\Semester 6\Mobile\Tugas 2"
+flutter analyze
+```
+
+---
+
+## Handoff Strategy
+
+Setelah selesai, akan dibuat file `HANDOFF_GALIH.md` di root project berisi:
+- Apa yang sudah dikerjakan
+- Struktur project
+- Apa yang harus dilakukan Galih (penjumlahan & pengurangan)
+- File mana yang perlu dimodifikasi
+- Convention/pattern yang digunakan
