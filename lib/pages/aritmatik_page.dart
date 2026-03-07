@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:tugas2_mobile/pages/ganjil_genap_prima_page.dart';
 import 'package:tugas2_mobile/pages/penjumlahan_pengurangan_page.dart';
 
 // ============================================================
@@ -64,14 +65,10 @@ class AritmatikPage extends StatelessWidget {
               subtitle: 'Cek bilangan ganjil, genap, dan prima',
               color: Colors.purple,
               onTap: () {
-                // TODO: Nopal - Navigasi ke halaman ganjil/genap & prima
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const _PlaceholderPage(
-                      title: 'Ganjil/Genap & Prima',
-                      assignedTo: 'Nopal',
-                    ),
+                    builder: (_) => const GanjilGenapPrimaPage(),
                   ),
                 );
               },
