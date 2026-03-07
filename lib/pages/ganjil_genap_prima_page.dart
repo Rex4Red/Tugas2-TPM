@@ -14,7 +14,7 @@ class _GanjilGenapPrimaPageState extends State<GanjilGenapPrimaPage> {
   bool _showResult = false;
   bool _isGenap = false;
   bool _isPrima = false;
-  int _bilangan = 0;
+  BigInt _bilangan = BigInt.zero;
 
   @override
   void dispose() {
@@ -22,10 +22,30 @@ class _GanjilGenapPrimaPageState extends State<GanjilGenapPrimaPage> {
     super.dispose();
   }
 
-  bool _cekPrima(int n) {
-    if (n < 2) return false;
-    for (int i = 2; i <= n ~/ 2; i++) {
-      if (n % i == 0) return false;
+  // Hitung akar kuadrat BigInt (Newton's method)
+  BigInt _sqrtBigInt(BigInt n) {
+    if (n < BigInt.zero) return BigInt.zero;
+    if (n == BigInt.zero) return BigInt.zero;
+    BigInt x = n;
+    BigInt y = (x + BigInt.one) >> 1; // (x + 1) / 2
+    while (y < x) {
+      x = y;
+      y = (x + n ~/ x) >> 1;
+    }
+    return x;
+  }
+
+  bool _cekPrima(BigInt n) {
+    if (n < BigInt.two) return false;
+    if (n == BigInt.two || n == BigInt.from(3)) return true;
+    if (n % BigInt.two == BigInt.zero) return false;
+    if (n % BigInt.from(3) == BigInt.zero) return false;
+    final batas = _sqrtBigInt(n);
+    BigInt i = BigInt.from(5);
+    while (i <= batas) {
+      if (n % i == BigInt.zero) return false;
+      if (n % (i + BigInt.two) == BigInt.zero) return false;
+      i += BigInt.from(6);
     }
     return true;
   }
@@ -33,11 +53,11 @@ class _GanjilGenapPrimaPageState extends State<GanjilGenapPrimaPage> {
   void _cek() {
     if (!_formKey.currentState!.validate()) return;
 
-    final bilangan = int.parse(_bilanganController.text);
+    final bilangan = BigInt.parse(_bilanganController.text.trim());
 
     setState(() {
       _bilangan = bilangan;
-      _isGenap = bilangan % 2 == 0;
+      _isGenap = bilangan % BigInt.two == BigInt.zero;
       _isPrima = _cekPrima(bilangan);
       _showResult = true;
     });
@@ -50,7 +70,7 @@ class _GanjilGenapPrimaPageState extends State<GanjilGenapPrimaPage> {
       _showResult = false;
       _isGenap = false;
       _isPrima = false;
-      _bilangan = 0;
+      _bilangan = BigInt.zero;
     });
   }
 
@@ -130,10 +150,10 @@ class _GanjilGenapPrimaPageState extends State<GanjilGenapPrimaPage> {
                         fillColor: Colors.white,
                       ),
                       validator: (value) {
-                        if (value == null || value.isEmpty) {
+                        if (value == null || value.trim().isEmpty) {
                           return 'Bilangan tidak boleh kosong';
                         }
-                        if (int.tryParse(value) == null) {
+                        if (BigInt.tryParse(value.trim()) == null) {
                           return 'Masukkan bilangan bulat yang valid';
                         }
                         return null;
