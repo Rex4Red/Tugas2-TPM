@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:tugas2_mobile/pages/ganjil_genap_prima_page.dart';
+import 'package:tugas2_mobile/pages/jumlah_total_page.dart';
 import 'package:tugas2_mobile/pages/penjumlahan_pengurangan_page.dart';
 
 // ============================================================
@@ -87,10 +88,8 @@ class AritmatikPage extends StatelessWidget {
                 Navigator.push(
                   context,
                   MaterialPageRoute(
-                    builder: (_) => const _PlaceholderPage(
-                      title: 'Jumlah Total',
-                      assignedTo: 'Tiok',
-                    ),
+                    builder: (_) => const JumlahTotalPage()
+                      
                   ),
                 );
               },
@@ -161,59 +160,6 @@ class AritmatikPage extends StatelessWidget {
             Icon(
               Icons.chevron_right,
               color: Colors.grey[400],
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// Halaman placeholder sementara untuk fitur yang belum diimplementasi
-class _PlaceholderPage extends StatelessWidget {
-  final String title;
-  final String assignedTo;
-
-  const _PlaceholderPage({
-    required this.title,
-    required this.assignedTo,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: Colors.grey[50],
-      appBar: AppBar(
-        title: Text(title),
-        backgroundColor: Colors.orange,
-        foregroundColor: Colors.white,
-        elevation: 0,
-      ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(
-              Icons.construction_rounded,
-              size: 80,
-              color: Colors.grey[400],
-            ),
-            const SizedBox(height: 16),
-            Text(
-              'Coming Soon',
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-                color: Colors.grey[600],
-              ),
-            ),
-            const SizedBox(height: 8),
-            Text(
-              'Akan dikerjakan oleh $assignedTo',
-              style: TextStyle(
-                fontSize: 14,
-                color: Colors.grey[500],
-              ),
             ),
           ],
         ),
