@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import '../services/auth_service.dart';
-import 'register_page.dart';
 import 'home_page.dart';
 
 class LoginPage extends StatefulWidget {
@@ -13,15 +12,12 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
   final _nimController = TextEditingController();
-  final _passwordController = TextEditingController();
   final _authService = AuthService();
   bool _isLoading = false;
-  bool _obscurePassword = true;
 
   @override
   void dispose() {
     _nimController.dispose();
-    _passwordController.dispose();
     super.dispose();
   }
 
@@ -30,10 +26,7 @@ class _LoginPageState extends State<LoginPage> {
 
     setState(() => _isLoading = true);
 
-    final result = await _authService.login(
-      _nimController.text.trim(),
-      _passwordController.text,
-    );
+    final result = await _authService.login(_nimController.text.trim());
 
     setState(() => _isLoading = false);
 
@@ -86,12 +79,9 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const SizedBox(height: 8),
                   Text(
-                    'Silakan login dengan NIM Anda',
+                    'Masukkan NIM untuk melanjutkan',
                     textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                   ),
                   const SizedBox(height: 40),
 
@@ -101,7 +91,7 @@ class _LoginPageState extends State<LoginPage> {
                     keyboardType: TextInputType.number,
                     decoration: InputDecoration(
                       labelText: 'NIM',
-                      hintText: 'Masukkan NIM',
+                      hintText: 'Masukkan NIM Anda',
                       prefixIcon: const Icon(Icons.badge_outlined),
                       border: OutlineInputBorder(
                         borderRadius: BorderRadius.circular(12),
@@ -112,41 +102,6 @@ class _LoginPageState extends State<LoginPage> {
                     validator: (value) {
                       if (value == null || value.trim().isEmpty) {
                         return 'NIM tidak boleh kosong';
-                      }
-                      return null;
-                    },
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Password Field
-                  TextFormField(
-                    controller: _passwordController,
-                    obscureText: _obscurePassword,
-                    decoration: InputDecoration(
-                      labelText: 'Password',
-                      hintText: 'Masukkan password',
-                      prefixIcon: const Icon(Icons.lock_outline),
-                      suffixIcon: IconButton(
-                        icon: Icon(
-                          _obscurePassword
-                              ? Icons.visibility_off
-                              : Icons.visibility,
-                        ),
-                        onPressed: () {
-                          setState(() {
-                            _obscurePassword = !_obscurePassword;
-                          });
-                        },
-                      ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      filled: true,
-                      fillColor: Colors.white,
-                    ),
-                    validator: (value) {
-                      if (value == null || value.isEmpty) {
-                        return 'Password tidak boleh kosong';
                       }
                       return null;
                     },
@@ -172,8 +127,9 @@ class _LoginPageState extends State<LoginPage> {
                               width: 20,
                               child: CircularProgressIndicator(
                                 strokeWidth: 2,
-                                valueColor:
-                                    AlwaysStoppedAnimation<Color>(Colors.white),
+                                valueColor: AlwaysStoppedAnimation<Color>(
+                                  Colors.white,
+                                ),
                               ),
                             )
                           : const Text(
@@ -184,34 +140,6 @@ class _LoginPageState extends State<LoginPage> {
                               ),
                             ),
                     ),
-                  ),
-                  const SizedBox(height: 16),
-
-                  // Register Link
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        'Belum punya akun? ',
-                        style: TextStyle(color: Colors.grey[600]),
-                      ),
-                      GestureDetector(
-                        onTap: () {
-                          Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (_) => const RegisterPage()),
-                          );
-                        },
-                        child: Text(
-                          'Daftar',
-                          style: TextStyle(
-                            color: Colors.blueGrey[700],
-                            fontWeight: FontWeight.w600,
-                          ),
-                        ),
-                      ),
-                    ],
                   ),
                 ],
               ),
