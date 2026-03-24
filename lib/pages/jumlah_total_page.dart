@@ -1,24 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
-
-class SingleSpaceFormatter extends TextInputFormatter {
-  @override
-  TextEditingValue formatEditUpdate(
-      TextEditingValue oldValue, TextEditingValue newValue) {
-    
-    // 1. Ganti semua spasi beruntun (2 atau lebih) menjadi 1 spasi saja
-    // 2. Cegah spasi di awal input agar lebih rapi
-    String formatted = newValue.text.replaceAll(RegExp(r'\s+'), ' ');
-    if (formatted.startsWith(' ')) {
-      formatted = formatted.trimLeft();
-    }
-
-    return TextEditingValue(
-      text: formatted,
-      selection: TextSelection.collapsed(offset: formatted.length),
-    );
-  }
-}
 
 class JumlahTotalPage extends StatefulWidget {
   const JumlahTotalPage({super.key});
@@ -28,11 +8,10 @@ class JumlahTotalPage extends StatefulWidget {
 }
 
 class _JumlahTotalPageState extends State<JumlahTotalPage> {
-  final _formKey = GlobalKey<FormState>();
   final _inputController = TextEditingController();
 
-  List<double> _angkaList = [];
-  double _total = 0;
+  List<String> _foundDigits = [];
+  int _total = 0;
   bool _showResult = false;
 
   @override
@@ -41,37 +20,30 @@ class _JumlahTotalPageState extends State<JumlahTotalPage> {
     super.dispose();
   }
 
-  // Logic Hint Integration
   void _hitung() {
-    if (!_formKey.currentState!.validate()) return;
-
-    final input = _inputController.text;
-    
-    try {
-      final parsedList = input
-          .split(',')
-          .map((e) => e.trim())
-          .where((e) => e.isNotEmpty)
-          .map((e) => double.parse(e))
-          .toList();
-
-      setState(() {
-        _angkaList = parsedList;
-        _total = _angkaList.isEmpty ? 0 : _angkaList.reduce((a, b) => a + b);
-        _showResult = true;
-      });
-    } catch (e) {
+    final text = _inputController.text;
+    if (text.trim().isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Format input salah. Gunakan angka dan koma.')),
+        const SnackBar(content: Text('Input tidak boleh kosong')),
       );
+      return;
     }
+
+    final matches = RegExp(r'\d').allMatches(text);
+
+    final extractedDigits = matches.map((m) => m.group(0)!).toList();
+
+    setState(() {
+      _foundDigits = extractedDigits;
+      _total = extractedDigits.length;
+      _showResult = true;
+    });
   }
 
   void _reset() {
-    _formKey.currentState?.reset();
     _inputController.clear();
     setState(() {
-      _angkaList = [];
+      _foundDigits = [];
       _total = 0;
       _showResult = false;
     });
@@ -82,7 +54,7 @@ class _JumlahTotalPageState extends State<JumlahTotalPage> {
     return Scaffold(
       backgroundColor: Colors.grey[50],
       appBar: AppBar(
-        title: const Text('Jumlah Total'),
+        title: const Text('Total Karakter Angka'),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         elevation: 0,
@@ -104,13 +76,13 @@ class _JumlahTotalPageState extends State<JumlahTotalPage> {
               child: Column(
                 children: [
                   Icon(
-                    Icons.summarize_outlined,
+                    Icons.find_in_page_rounded,
                     size: 48,
                     color: Colors.white.withValues(alpha: 0.9),
                   ),
                   const SizedBox(height: 8),
                   const Text(
-                    'Total Accumulator',
+                    'Pencari Karakter Angka',
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
@@ -119,7 +91,8 @@ class _JumlahTotalPageState extends State<JumlahTotalPage> {
                   ),
                   const SizedBox(height: 4),
                   Text(
-                    'Hitung jumlah keseluruhan dari daftar angka',
+                    'Masukkan teks/paragraf, temukan semua angka di dalamnya',
+                    textAlign: TextAlign.center,
                     style: TextStyle(
                       color: Colors.white.withValues(alpha: 0.7),
                       fontSize: 14,
@@ -132,176 +105,202 @@ class _JumlahTotalPageState extends State<JumlahTotalPage> {
             // Form
             Padding(
               padding: const EdgeInsets.all(24),
-              child: Form(
-                key: _formKey,
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: [
-                    TextFormField(
-                      controller: _inputController,
-                      keyboardType: TextInputType.text,
-                      inputFormatters: [
-                        FilteringTextInputFormatter.allow(RegExp(r'[0-9,.\s-]')), 
-                        SingleSpaceFormatter(), // Pakai yang baru ini
-                      ],
-                      decoration: InputDecoration(
-                        labelText: 'Daftar Angka',
-                        hintText: 'Contoh: 1,5 atau 1, 5',
-                        prefixIcon: const Icon(Icons.list_alt_rounded),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        filled: true,
-                        fillColor: Colors.white,
-                        helperText: 'Otomatis: Koma akan diikuti satu spasi',
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  // Input Paragraf
+                  TextFormField(
+                    controller: _inputController,
+                    maxLines: 5,
+                    keyboardType: TextInputType.multiline,
+                    decoration: InputDecoration(
+                      labelText: 'Masukkan Teks / Paragraf',
+                      hintText:
+                          'Contoh: Saya punya 3 kucing dan 2 anjing di rumah nomor 17',
+                      alignLabelWithHint: true,
+                      prefixIcon: const Padding(
+                        padding: EdgeInsets.only(bottom: 80),
+                        child: Icon(Icons.text_fields_rounded),
                       ),
-                      validator: (value) {
-                        if (value == null || value.trim().isEmpty) {
-                          return 'Input tidak boleh kosong';
-                        }
-
-                        // 1. Cek spasi sebelum koma (Kasus Screenshot 2: "1 , 5")
-                        if (value.contains(RegExp(r'\s,'))) {
-                          return 'Tidak boleh ada spasi sebelum tanda koma';
-                        }
-
-                        // 2. Cek koma beruntun atau ganda (Kasus Screenshot 1: "1 , , 6")
-                        if (value.contains(RegExp(r',\s*,'))) {
-                          return 'Format salah (ditemukan koma ganda)';
-                        }
-
-                        // 3. Cek jika input diawali atau diakhiri dengan koma
-                        final trimmedValue = value.trim();
-                        if (trimmedValue.startsWith(',') || trimmedValue.endsWith(',')) {
-                          return 'Input tidak boleh diawali atau diakhiri koma';
-                        }
-
-                        // 4. Validasi karakter ilegal
-                        final illegalChars = value.replaceAll(RegExp(r'[0-9,.\s-]'), '');
-                        if (illegalChars.isNotEmpty) {
-                          return 'Hanya boleh memasukkan angka dan koma';
-                        }
-
-                        return null;
-                      },
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      filled: true,
+                      fillColor: Colors.white,
+                      helperText:
+                          'Semua karakter angka (0-9) akan diekstrak otomatis',
                     ),
-                    const SizedBox(height: 24),
+                  ),
+                  const SizedBox(height: 24),
 
-                    // Buttons
-                    Row(
-                      children: [
-                        Expanded(
-                          child: SizedBox(
-                            height: 50,
-                            child: OutlinedButton(
-                              onPressed: _reset,
-                              style: OutlinedButton.styleFrom(
-                                foregroundColor: Colors.grey[600],
-                                side: BorderSide(color: Colors.grey[400]!),
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
+                  // Buttons
+                  Row(
+                    children: [
+                      Expanded(
+                        child: SizedBox(
+                          height: 50,
+                          child: OutlinedButton(
+                            onPressed: _reset,
+                            style: OutlinedButton.styleFrom(
+                              foregroundColor: Colors.grey[600],
+                              side: BorderSide(color: Colors.grey[400]!),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
                               ),
-                              child: const Text('Reset'),
+                            ),
+                            child: const Text('Reset'),
+                          ),
+                        ),
+                      ),
+                      const SizedBox(width: 16),
+                      Expanded(
+                        flex: 2,
+                        child: SizedBox(
+                          height: 50,
+                          child: ElevatedButton(
+                            onPressed: _hitung,
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Colors.blue,
+                              foregroundColor: Colors.white,
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              elevation: 0,
+                            ),
+                            child: const Text(
+                              'Cari Angka',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                         ),
-                        const SizedBox(width: 16),
-                        Expanded(
-                          flex: 2,
-                          child: SizedBox(
-                            height: 50,
-                            child: ElevatedButton(
-                              onPressed: _hitung,
-                              style: ElevatedButton.styleFrom(
-                                backgroundColor: Colors.blue,
-                                foregroundColor: Colors.white,
-                                shape: RoundedRectangleBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                elevation: 0,
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 24),
+
+                  // Result Display
+                  if (_showResult) ...[
+                    Container(
+                      padding: const EdgeInsets.all(20),
+                      decoration: BoxDecoration(
+                        color: Colors.white,
+                        borderRadius: BorderRadius.circular(16),
+                        boxShadow: [
+                          BoxShadow(
+                            color: Colors.blue.withValues(alpha: 0.1),
+                            blurRadius: 12,
+                            offset: const Offset(0, 4),
+                          ),
+                        ],
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            'Hasil Pencarian',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.w600,
+                              color: Colors.blue[700],
+                            ),
+                          ),
+                          const Divider(height: 24),
+
+                          // Angka yang ditemukan
+                          const Text(
+                            'Angka yang ditemukan:',
+                            style: TextStyle(
+                              fontSize: 13,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.blueGrey,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+
+                          if (_foundDigits.isEmpty)
+                            Text(
+                              'Tidak ada angka ditemukan',
+                              style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[500],
+                                fontStyle: FontStyle.italic,
                               ),
-                              child: const Text(
-                                'Hitung Total',
+                            )
+                          else
+                            // Tampilkan angka sebagai chips
+                            Wrap(
+                              spacing: 8,
+                              runSpacing: 8,
+                              alignment: WrapAlignment.center,
+                              children: _foundDigits
+                                  .asMap()
+                                  .entries
+                                  .map((entry) => Container(
+                                        padding: const EdgeInsets.symmetric(
+                                            horizontal: 14, vertical: 8),
+                                        decoration: BoxDecoration(
+                                          color: Colors.blue[50],
+                                          borderRadius:
+                                              BorderRadius.circular(20),
+                                          border: Border.all(
+                                              color: Colors.blue[200]!),
+                                        ),
+                                        child: Text(
+                                          entry.value,
+                                          style: TextStyle(
+                                            fontSize: 16,
+                                            fontWeight: FontWeight.w600,
+                                            color: Colors.blue[700],
+                                          ),
+                                        ),
+                                      ))
+                                  .toList(),
+                            ),
+
+                          const SizedBox(height: 16),
+
+                          // List format
+                          if (_foundDigits.isNotEmpty) ...[
+                            Container(
+                              width: double.infinity,
+                              padding: const EdgeInsets.all(12),
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                borderRadius: BorderRadius.circular(8),
+                              ),
+                              child: Text(
+                                'List: [${_foundDigits.map((d) => "'$d'").join(', ')}]',
                                 style: TextStyle(
-                                  fontSize: 16,
-                                  fontWeight: FontWeight.w600,
+                                  fontSize: 13,
+                                  fontFamily: 'monospace',
+                                  color: Colors.blueGrey[600],
                                 ),
                               ),
                             ),
-                          ),
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 24),
+                            const SizedBox(height: 16),
+                          ],
 
-                    // Result Display
-                    // Result Display
-if (_showResult) ...[
-  Container(
-    padding: const EdgeInsets.all(20),
-    decoration: BoxDecoration(
-      color: Colors.white,
-      borderRadius: BorderRadius.circular(16),
-      boxShadow: [
-        BoxShadow(
-          color: Colors.blue.withValues(alpha: 0.1),
-          blurRadius: 12,
-          offset: const Offset(0, 4),
-        ),
-      ],
-    ),
-    child: Column(
-      children: [
-        Text(
-          'Hasil Perhitungan',
-          style: TextStyle(
-            fontSize: 16,
-            fontWeight: FontWeight.w600,
-            color: Colors.blue[700],
-          ),
-        ),
-        const Divider(height: 24),
-        
-        const Text(
-          'Daftar Angka:',
-          style: TextStyle(
-            fontSize: 13,
-            fontWeight: FontWeight.bold,
-            color: Colors.blueGrey,
-          ),
-        ),
-        const SizedBox(height: 4),
-        // Menghilangkan .0 pada daftar angka yang tampil
-        Text(
-          _angkaList.map((n) => n % 1 == 0 ? n.toInt().toString() : n.toString()).join(' + '),
-          textAlign: TextAlign.center,
-          style: TextStyle(
-            fontSize: 14,
-            color: Colors.blueGrey[600],
-          ),
-        ),
-        const SizedBox(height: 16),
-        
-        const Text(
-          'Jumlah Total:',
-          style: TextStyle(fontSize: 14, color: Colors.blueGrey),
-        ),
-        // Menghilangkan .0 pada hasil total
-        Text(
-          _total % 1 == 0 ? _total.toInt().toString() : _total.toStringAsFixed(2),
-          style: TextStyle(
-            fontSize: 36,
-            fontWeight: FontWeight.w700,
-            color: Colors.blue[700],
-          ),
-        ),
-      ],
-    ),
-  ),
-],
+                          // Total
+                          const Text(
+                            'Total Karakter Angka:',
+                            style:
+                                TextStyle(fontSize: 14, color: Colors.blueGrey),
+                          ),
+                          Text(
+                            '$_total',
+                            style: TextStyle(
+                              fontSize: 48,
+                              fontWeight: FontWeight.w700,
+                              color: Colors.blue[700],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
                   ],
-                ),
+                ],
               ),
             ),
           ],

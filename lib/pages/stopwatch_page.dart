@@ -13,6 +13,22 @@ class _StopwatchPageState extends State<StopwatchPage> {
   Timer? _timer;
   final List<String> _laps = [];
 
+  // ============================================================
+  // CUSTOM START TIME — Edit nilai di bawah ini untuk mengatur
+  // waktu mulai stopwatch (default: 00:00:00.00)
+  // ============================================================
+  static const int _startJam    = 0;   // 0-23
+  static const int _startMenit  = 0;   // 0-59
+  static const int _startDetik  = 0;   // 0-59
+  static const int _startMs     = 0;   // 0-99
+  // ============================================================
+
+  // Konversi start time ke milliseconds
+  int _offsetMilliseconds = (_startJam * 3600000) +
+      (_startMenit * 60000) +
+      (_startDetik * 1000) +
+      (_startMs * 10);
+
   @override
   void dispose() {
     _timer?.cancel();
@@ -37,12 +53,18 @@ class _StopwatchPageState extends State<StopwatchPage> {
     _timer?.cancel();
     setState(() {
       _laps.clear();
+      // Reset offset ke custom start time
+      _offsetMilliseconds = (_startJam * 3600000) +
+          (_startMenit * 60000) +
+          (_startDetik * 1000) +
+          (_startMs * 10);
     });
   }
 
   void _addLap() {
     setState(() {
-      _laps.insert(0, _formatTime(_stopwatch.elapsedMilliseconds));
+      _laps.insert(
+          0, _formatTime(_stopwatch.elapsedMilliseconds + _offsetMilliseconds));
     });
   }
 
@@ -61,7 +83,9 @@ class _StopwatchPageState extends State<StopwatchPage> {
   @override
   Widget build(BuildContext context) {
     final isRunning = _stopwatch.isRunning;
-    final elapsed = _stopwatch.elapsedMilliseconds;
+    final elapsed = _stopwatch.elapsedMilliseconds + _offsetMilliseconds;
+    final hasStarted =
+        _stopwatch.isRunning || _stopwatch.elapsedMilliseconds > 0;
 
     return Scaffold(
       backgroundColor: Colors.grey[50],
@@ -76,7 +100,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
           // Timer Display
           Container(
             width: double.infinity,
-            padding: const EdgeInsets.symmetric(vertical: 48),
+            padding: const EdgeInsets.symmetric(vertical: 40),
             decoration: BoxDecoration(
               color: Colors.teal,
               borderRadius: const BorderRadius.only(
@@ -96,6 +120,24 @@ class _StopwatchPageState extends State<StopwatchPage> {
                     letterSpacing: 4,
                   ),
                 ),
+                if (_offsetMilliseconds > 0 && !hasStarted) ...[
+                  const SizedBox(height: 8),
+                  Container(
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 12, vertical: 4),
+                    decoration: BoxDecoration(
+                      color: Colors.white.withValues(alpha: 0.15),
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    child: Text(
+                      'Start dari ${_formatTime(_offsetMilliseconds)}',
+                      style: TextStyle(
+                        color: Colors.white.withValues(alpha: 0.8),
+                        fontSize: 12,
+                      ),
+                    ),
+                  ),
+                ],
               ],
             ),
           ),

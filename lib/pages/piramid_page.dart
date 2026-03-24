@@ -409,7 +409,7 @@ class _LuasPiramidPageState extends State<_LuasPiramidPage> {
                                   ),
                                 ),
                                 Text(
-                                  '${_hasil!.toStringAsFixed(2)} satuan²',
+                                  '${_hasil!.toStringAsFixed(2)} cm²',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w700,
                                     color: Colors.indigo[700],
@@ -681,7 +681,7 @@ class _VolumePiramidPageState extends State<_VolumePiramidPage> {
                                   ),
                                 ),
                                 Text(
-                                  '${_hasil!.toStringAsFixed(2)} satuan³',
+                                  '${_hasil!.toStringAsFixed(2)} cm³',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w700,
                                     color: Colors.deepPurple[700],

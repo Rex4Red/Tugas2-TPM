@@ -4,6 +4,7 @@ import 'stopwatch_page.dart';
 import 'piramid_page.dart';
 import 'aritmatik_page.dart';
 import 'data_kelompok_page.dart';
+import 'cek_tanggal_page.dart';
 import 'profile_page.dart';
 
 class HomePage extends StatefulWidget {
@@ -144,6 +145,16 @@ class _HomePageState extends State<HomePage> {
                       context,
                       MaterialPageRoute(
                           builder: (_) => const DataKelompokPage()),
+                    ),
+                  ),
+                  _buildMenuCard(
+                    icon: Icons.calendar_month_rounded,
+                    title: 'Cek\nTanggal',
+                    color: Colors.deepPurple,
+                    onTap: () => Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (_) => const CekTanggalPage()),
                     ),
                   ),
                 ],

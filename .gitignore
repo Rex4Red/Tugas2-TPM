@@ -49,3 +49,7 @@ app.*.map.json
 *.py
 ~$*
 *.pptx
+
+AGENT.md
+CLAUDE.md
+.agent-mem/
