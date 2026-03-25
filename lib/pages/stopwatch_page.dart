@@ -49,6 +49,7 @@ class _StopwatchPageState extends State<StopwatchPage> {
   }
 
   void _resetTimer() {
+    _stopwatch.stop();
     _stopwatch.reset();
     _timer?.cancel();
     setState(() {
