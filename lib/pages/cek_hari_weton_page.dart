@@ -12,12 +12,12 @@ class _CekHariWetonPageState extends State<CekHariWetonPage> {
   String? _namaHari;
   String? _pasaran;
 
-  // Nama hari dalam bahasa Indonesia
+  // List Nama hari
   final List<String> _namaHariList = [
     'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu', 'Minggu',
   ];
 
-  // Pasaran Jawa (siklus 5 hari, urutan standar)
+  // Pasaran Jawa (siklus 5 hari)
   final List<String> _pasaranList = [
     'Legi', 'Pahing', 'Pon', 'Wage', 'Kliwon',
   ];
@@ -42,18 +42,15 @@ class _CekHariWetonPageState extends State<CekHariWetonPage> {
   }
 
   void _hitungHariDanWeton(DateTime date) {
-    // Nama hari (DateTime.weekday: 1=Senin, 7=Minggu)
+
     _namaHari = _namaHariList[date.weekday - 1];
 
-    // Hitung pasaran Jawa menggunakan Julian Day Number (JDN)
-    // JDN % 5 langsung memberikan index pasaran yang benar
     int jdn = _gregorianToJDN(date.year, date.month, date.day);
     int indexPasaran = jdn % 5;
 
     _pasaran = _pasaranList[indexPasaran];
   }
 
-  /// Konversi tanggal Masehi ke Julian Day Number (algoritma standar astronomi)
   int _gregorianToJDN(int year, int month, int day) {
     int a = (14 - month) ~/ 12;
     int y = year + 4800 - a;

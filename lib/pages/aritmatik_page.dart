@@ -3,15 +3,6 @@ import 'package:tugas2_mobile/pages/ganjil_genap_prima_page.dart';
 import 'package:tugas2_mobile/pages/jumlah_total_page.dart';
 import 'package:tugas2_mobile/pages/penjumlahan_pengurangan_page.dart';
 
-// ============================================================
-// HALAMAN ARITMATIK - PLACEHOLDER
-// Halaman ini berisi menu untuk fitur aritmatik yang akan
-// dikerjakan oleh anggota kelompok lain:
-// - Penjumlahan & Pengurangan → Galih
-// - Ganjil/Genap & Prima → Nopal
-// - Jumlah Total → Tiok
-// ============================================================
-
 class AritmatikPage extends StatelessWidget {
   const AritmatikPage({super.key});
 
@@ -40,7 +31,7 @@ class AritmatikPage extends StatelessWidget {
             ),
             const SizedBox(height: 20),
 
-            // Menu Penjumlahan & Pengurangan - TODO: Galih
+            // Menu Penjumlahan & Pengurangan
             _buildMenuItem(
               context,
               icon: Icons.add_circle_outline,
@@ -58,7 +49,7 @@ class AritmatikPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Menu Ganjil/Genap & Prima - TODO: Nopal
+            // Menu Ganjil/Genap & Prima 
             _buildMenuItem(
               context,
               icon: Icons.filter_list_rounded,
@@ -76,7 +67,7 @@ class AritmatikPage extends StatelessWidget {
             ),
             const SizedBox(height: 12),
 
-            // Menu Jumlah Total - TODO: Tiok
+            // Menu Jumlah Total
             _buildMenuItem(
               context,
               icon: Icons.functions_rounded,
@@ -84,7 +75,7 @@ class AritmatikPage extends StatelessWidget {
               subtitle: 'Hitung jumlah total angka dalam input',
               color: Colors.blue,
               onTap: () {
-                // TODO: Tiok - Navigasi ke halaman jumlah total
+                // TODO: Tiok
                 Navigator.push(
                   context,
                   MaterialPageRoute(

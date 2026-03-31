@@ -1,9 +1,5 @@
 import 'package:flutter/material.dart';
 
-// ============================================================
-// HALAMAN PIRAMID - Menu pilihan Luas atau Volume
-// ============================================================
-
 class PiramidPage extends StatelessWidget {
   const PiramidPage({super.key});
 
@@ -159,11 +155,6 @@ class PiramidPage extends StatelessWidget {
     );
   }
 }
-
-// ============================================================
-// HALAMAN LUAS PERMUKAAN PIRAMID
-// L = a² + 2 × a × t.miring
-// ============================================================
 
 class _LuasPiramidPage extends StatefulWidget {
   const _LuasPiramidPage();
@@ -431,11 +422,6 @@ class _LuasPiramidPageState extends State<_LuasPiramidPage> {
     );
   }
 }
-
-// ============================================================
-// HALAMAN VOLUME PIRAMID
-// V = 1/3 × a² × t
-// ============================================================
 
 class _VolumePiramidPage extends StatefulWidget {
   const _VolumePiramidPage();

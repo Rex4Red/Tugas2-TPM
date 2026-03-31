@@ -231,7 +231,7 @@ class _HitungUmurPageState extends State<HitungUmurPage> {
                         ),
                         Switch(
                           value: _pakaiKabisat,
-                          activeColor: Colors.pink[600],
+                          activeThumbColor: Colors.pink[600],
                           onChanged: (val) {
                             setState(() {
                               _pakaiKabisat = val;

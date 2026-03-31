@@ -135,7 +135,7 @@ class _KonversiHijriahPageState extends State<KonversiHijriahPage> {
                 icon: Icons.calendar_today_rounded,
                 color: Colors.blue,
                 day: '${_selectedDate!.day}',
-                monthYear: '${_formatTanggalMasehi(_selectedDate!).split(' ').skip(1).join(' ')}',
+                monthYear: _formatTanggalMasehi(_selectedDate!).split(' ').skip(1).join(' '),
                 extra: _getHariMasehi(_selectedDate!),
               ),
 

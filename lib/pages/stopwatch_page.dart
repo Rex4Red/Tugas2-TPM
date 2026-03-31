@@ -13,15 +13,10 @@ class _StopwatchPageState extends State<StopwatchPage> {
   Timer? _timer;
   final List<String> _laps = [];
 
-  // ============================================================
-  // CUSTOM START TIME — Edit nilai di bawah ini untuk mengatur
-  // waktu mulai stopwatch (default: 00:00:00.00)
-  // ============================================================
   static const int _startJam    = 0;   // 0-23
   static const int _startMenit  = 0;   // 0-59
   static const int _startDetik  = 0;   // 0-59
   static const int _startMs     = 0;   // 0-99
-  // ============================================================
 
   // Konversi start time ke milliseconds
   int _offsetMilliseconds = (_startJam * 3600000) +
