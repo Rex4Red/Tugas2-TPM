@@ -79,25 +79,52 @@ class _HitungUmurPageState extends State<HitungUmurPage> {
   }
 
   void _hitungUmurTanpaKabisat(DateTime now) {
-    // Hitung total hari aktual
-    final totalHariAktual = now.difference(_tanggalLahir!).inDays;
+    // Step 1: Hitung umur normal (kalender) terlebih dahulu
+    int tahun = now.year - _tanggalLahir!.year;
+    int bulan = now.month - _tanggalLahir!.month;
+    int hari = now.day - _tanggalLahir!.day;
 
-    // Hitung jumlah hari kabisat (29 Feb) yang terjadi antara tanggal lahir dan sekarang
+    if (hari < 0) {
+      bulan--;
+      final bulanSebelumnya = DateTime(now.year, now.month, 0);
+      hari += bulanSebelumnya.day;
+    }
+
+    if (bulan < 0) {
+      tahun--;
+      bulan += 12;
+    }
+
+    // Step 2: Kurangi jumlah hari kabisat (29 Feb) yang telah dilalui
     int jumlahHariKabisat = _hitungHariKabisat(_tanggalLahir!, now);
+    hari -= jumlahHariKabisat;
 
-    // Kurangi hari-hari kabisat karena di dunia "tanpa kabisat" 29 Feb tidak ada
-    final totalHariTanpaKabisat = totalHariAktual - jumlahHariKabisat;
+    // Step 3: Normalisasi jika hari menjadi negatif (pinjam dari bulan)
+    while (hari < 0) {
+      bulan--;
+      if (bulan < 0) {
+        tahun--;
+        bulan += 12;
+      }
+      // Hitung bulan yang dipinjam (bulan sebelum posisi saat ini)
+      // Posisi bulan saat ini relatif terhadap bulan lahir
+      int bulanPinjam = _tanggalLahir!.month + bulan;
+      while (bulanPinjam > 12) bulanPinjam -= 12;
+      while (bulanPinjam < 1) bulanPinjam += 12;
+      hari += _hariDalamBulanTanpaKabisat(bulanPinjam);
+    }
 
-    // Tanpa kabisat: semua tahun = 365 hari
-    _tahun = totalHariTanpaKabisat ~/ 365;
-    int sisaHari = totalHariTanpaKabisat % 365;
-
-    // Bulan rata-rata = 30 hari (tanpa kabisat, semua bulan dianggap 30 hari)
-    _bulan = sisaHari ~/ 30;
-    _hari = sisaHari % 30;
-
+    _tahun = tahun;
+    _bulan = bulan;
+    _hari = hari;
     _jam = now.hour;
     _menit = now.minute;
+  }
+
+  /// Jumlah hari dalam bulan tanpa kabisat (Feb selalu 28 hari)
+  int _hariDalamBulanTanpaKabisat(int bulan) {
+    const hariBulan = [0, 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31];
+    return hariBulan[bulan];
   }
 
   /// Menghitung berapa kali 29 Februari terjadi antara dua tanggal
