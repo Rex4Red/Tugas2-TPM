@@ -23,7 +23,7 @@ class _KonversiHijriahPageState extends State<KonversiHijriahPage> {
     final picked = await showDatePicker(
       context: context,
       initialDate: _selectedDate ?? DateTime.now(),
-      firstDate: DateTime(1937, 3, 14),
+      firstDate: DateTime(1980, 1, 1),
       lastDate: DateTime(2076, 11, 26),
       helpText: 'Pilih Tanggal Masehi',
       cancelText: 'Batal',
