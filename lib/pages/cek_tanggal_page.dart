@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'cek_hari_weton_page.dart';
 import 'hitung_umur_page.dart';
 import 'konversi_hijriah_page.dart';
+import 'konversi_saka_page.dart';
 
 class CekTanggalPage extends StatelessWidget {
   const CekTanggalPage({super.key});
@@ -16,7 +17,7 @@ class CekTanggalPage extends StatelessWidget {
         foregroundColor: Colors.white,
         elevation: 0,
       ),
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -61,6 +62,17 @@ class CekTanggalPage extends StatelessWidget {
               description: 'Konversi tanggal Masehi ke kalender Hijriah',
               color: Colors.green[700]!,
               page: const KonversiHijriahPage(),
+            ),
+            const SizedBox(height: 16),
+
+            // 4. Konversi Tahun Saka
+            _buildMenuCard(
+              context,
+              icon: Icons.temple_hindu_rounded,
+              title: 'Konversi Tahun Saka',
+              description: 'Konversi tanggal Masehi ke kalender Saka (India)',
+              color: Colors.orange[800]!,
+              page: const KonversiSakaPage(),
             ),
           ],
         ),
