@@ -29,13 +29,14 @@ class _JumlahTotalPageState extends State<JumlahTotalPage> {
       return;
     }
 
-    final matches = RegExp(r'\d').allMatches(text);
+    // \d+ = mencocokkan bilangan utuh (satu atau lebih digit berturutan)
+    final matches = RegExp(r'\d+').allMatches(text);
 
-    final extractedDigits = matches.map((m) => m.group(0)!).toList();
+    final extractedNumbers = matches.map((m) => m.group(0)!).toList();
 
     setState(() {
-      _foundDigits = extractedDigits;
-      _total = extractedDigits.length;
+      _foundDigits = extractedNumbers;
+      _total = extractedNumbers.length;
       _showResult = true;
     });
   }
